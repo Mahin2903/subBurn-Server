@@ -5,6 +5,8 @@ WORKDIR /app
 # ffmpeg-static already included in your npm deps, but system ffmpeg needed as fallback
 RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y ffmpeg fonts-noto && rm -rf /var/lib/apt/lists/*
+
 # Python deps
 COPY requirements.txt .
 RUN pip install -r requirements.txt

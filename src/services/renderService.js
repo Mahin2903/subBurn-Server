@@ -4,56 +4,35 @@ import fs from "fs";
 
 export const burnSubtitles = (videoPath, subtitlePath) => {
   return new Promise((resolve, reject) => {
-    // Create rendered folder
+
     if (!fs.existsSync("rendered")) {
       fs.mkdirSync("rendered");
     }
 
-    // Output video
     const outputPath = path.join("rendered", `${Date.now()}-captioned.mp4`);
 
-    // Linux-safe subtitle path
-    const absoluteSubtitlePath = path
-      .resolve(subtitlePath)
-      .replace(/\\/g, "/")
-      .replace(/:/g, "\\:")
-      .replace(/'/g, "\\'")
-      .replace(/\[/g, "\\[")
-      .replace(/\]/g, "\\]");
-
-    console.log("Subtitle path:", absoluteSubtitlePath);
+    // ── Fix: convert to absolute path ──────────────────────────────
+    const absoluteSubtitlePath = path.resolve(subtitlePath)
+      .replace(/\\/g, "/")       // Windows backslash fix
+      .replace(/:/g, "\\:");     // FFmpeg colon escape on Linux
 
     ffmpeg(videoPath)
-      .videoCodec("libx264")
-      .audioCodec("aac")
 
-      .outputOptions(["-preset veryfast", "-crf 23"])
+      .videoFilters(
+        `subtitles=${absoluteSubtitlePath}:force_style='FontName=Noto Sans Bengali,FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=2'`
+      )
 
-      // IMPORTANT
-      .videoFilters(`subtitles='${absoluteSubtitlePath}'`)
+      .outputOptions(["-c:v libx264", "-c:a aac"])
 
-      .on("start", (cmd) => {
-        console.log("FFmpeg command:");
-        console.log(cmd);
-      })
-
-      .on("stderr", (stderrLine) => {
-        console.log(stderrLine);
-      })
+      .on("start", (cmd) => console.log("FFmpeg command:", cmd))
 
       .on("end", () => {
         console.log("Subtitles burned successfully");
-
         resolve(outputPath);
       })
 
-      .on("error", (err, stdout, stderr) => {
-        console.log("===== FFMPEG STDERR =====");
-        console.log(stderr);
-
-        console.log("===== FFMPEG ERROR =====");
-        console.log(err);
-
+      .on("error", (err) => {
+        console.log("Render Error:", err);
         reject(err);
       })
 
