@@ -14,26 +14,48 @@ export const burnSubtitles = (
       fs.mkdirSync("rendered");
     }
 
-    // Output file
+    // Output video
     const outputPath = path.join(
       "rendered",
       `${Date.now()}-captioned.mp4`
     );
 
+    // Linux-safe subtitle path
+    const absoluteSubtitlePath = path
+      .resolve(subtitlePath)
+      .replace(/\\/g, "/")
+      .replace(/:/g, "\\:")
+      .replace(/'/g, "\\'")
+      .replace(/\[/g, "\\[")
+      .replace(/\]/g, "\\]");
+
+    console.log(
+      "Subtitle path:",
+      absoluteSubtitlePath
+    );
+
     ffmpeg(videoPath)
 
-      .videoFilters(
-    `subtitles=${subtitlePath}:force_style='FontName=Noto Sans Bengali,FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,Outline=2'`
-  )
+      .videoCodec("libx264")
+      .audioCodec("aac")
 
       .outputOptions([
-        "-c:v libx264",
-        "-c:a aac"
+        "-preset veryfast",
+        "-crf 23"
       ])
+
+      // IMPORTANT
+      .videoFilters(
+        `subtitles='${absoluteSubtitlePath}'`
+      )
 
       .on("start", (cmd) => {
         console.log("FFmpeg command:");
         console.log(cmd);
+      })
+
+      .on("stderr", (stderrLine) => {
+        console.log(stderrLine);
       })
 
       .on("end", () => {
@@ -43,16 +65,18 @@ export const burnSubtitles = (
         );
 
         resolve(outputPath);
+
       })
 
       .on("error", (err) => {
 
         console.log(
           "Render Error:",
-          err
+          err.message
         );
 
         reject(err);
+
       })
 
       .save(outputPath);
