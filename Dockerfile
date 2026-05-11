@@ -1,32 +1,20 @@
-FROM node:20
+FROM nikolaik/python-nodejs:python3.11-nodejs20
 
-# Install Python and FFmpeg
-RUN apt-get update && \
-    apt-get install -y \
-    python3 \
-    python3-pip \
-    ffmpeg
-
-# App folder
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# ffmpeg-static already included in your npm deps, but system ffmpeg needed as fallback
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
 
-# Install Node packages
+# Python deps
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Node deps
+COPY package*.json .
 RUN npm install
 
-# Copy Python requirements
-COPY requirements.txt ./
-
-# Install Python packages
-RUN pip3 install --break-system-packages -r requirements.txt
-
-# Copy all project files
+# Copy source
 COPY . .
 
-# Expose Render port
-EXPOSE 10000
-
-# Start backend
-CMD ["npm", "start"]
+# Entry point is src/index.js per your package.json
+CMD ["node", "src/index.js"]
