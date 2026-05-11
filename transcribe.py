@@ -9,7 +9,7 @@ audio_path = sys.argv[1]
 SUPPORTED_LANGUAGES = {"en", "bn", "hi"}
 
 # Load Whisper model
-model = WhisperModel("medium", compute_type="int8")
+model = WhisperModel("base", compute_type="int8")
 
 # ── Step 1: Detect language ────────────────────────────────────────────────
 _, info = model.transcribe(audio_path, language=None)
