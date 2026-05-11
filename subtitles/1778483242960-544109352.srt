@@ -1,0 +1,8 @@
+1
+00:00:00,000 --> 00:00:02,000
+Hello, I do it in chart.
+
+2
+00:00:02,000 --> 00:00:05,000
+I'm going to test to put CMH software.
+

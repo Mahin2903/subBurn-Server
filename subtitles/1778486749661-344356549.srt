@@ -1,0 +1,32 @@
+1
+00:00:00,500 --> 00:00:06,219
+Hello, this is a test recording for the SubPan application.
+
+2
+00:00:06,219 --> 00:00:14,419
+In this video I'm testing the automatic subtitle generation feature using spoken English audio.
+
+3
+00:00:14,419 --> 00:00:22,500
+The software should detect my voice, convert the speech into text and generate the synchronized
+
+4
+00:00:22,500 --> 00:00:26,620
+subtitles after the subtitles are generated.
+
+5
+00:00:27,019 --> 00:00:31,579
+They should be rendered directly into the final video output.
+
+6
+00:00:31,579 --> 00:00:41,259
+This test will help verify subtitle accuracy timing, video processing performance and overall
+
+7
+00:00:41,259 --> 00:00:49,100
+rendering quality. If everything works correctly, the final exported video should contain
+
+8
+00:00:49,100 --> 00:00:55,020
+clear and properly timed. Thank you for watching this software testing demonstration.
+
