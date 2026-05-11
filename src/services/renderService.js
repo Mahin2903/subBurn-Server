@@ -2,23 +2,15 @@ import ffmpeg from "fluent-ffmpeg";
 import path from "path";
 import fs from "fs";
 
-export const burnSubtitles = (
-  videoPath,
-  subtitlePath
-) => {
-
+export const burnSubtitles = (videoPath, subtitlePath) => {
   return new Promise((resolve, reject) => {
-
     // Create rendered folder
     if (!fs.existsSync("rendered")) {
       fs.mkdirSync("rendered");
     }
 
     // Output video
-    const outputPath = path.join(
-      "rendered",
-      `${Date.now()}-captioned.mp4`
-    );
+    const outputPath = path.join("rendered", `${Date.now()}-captioned.mp4`);
 
     // Linux-safe subtitle path
     const absoluteSubtitlePath = path
@@ -29,25 +21,16 @@ export const burnSubtitles = (
       .replace(/\[/g, "\\[")
       .replace(/\]/g, "\\]");
 
-    console.log(
-      "Subtitle path:",
-      absoluteSubtitlePath
-    );
+    console.log("Subtitle path:", absoluteSubtitlePath);
 
     ffmpeg(videoPath)
-
       .videoCodec("libx264")
       .audioCodec("aac")
 
-      .outputOptions([
-        "-preset veryfast",
-        "-crf 23"
-      ])
+      .outputOptions(["-preset veryfast", "-crf 23"])
 
       // IMPORTANT
-      .videoFilters(
-        `subtitles='${absoluteSubtitlePath}'`
-      )
+      .videoFilters(`subtitles='${absoluteSubtitlePath}'`)
 
       .on("start", (cmd) => {
         console.log("FFmpeg command:");
@@ -59,28 +42,21 @@ export const burnSubtitles = (
       })
 
       .on("end", () => {
-
-        console.log(
-          "Subtitles burned successfully"
-        );
+        console.log("Subtitles burned successfully");
 
         resolve(outputPath);
-
       })
 
-      .on("error", (err) => {
+      .on("error", (err, stdout, stderr) => {
+        console.log("===== FFMPEG STDERR =====");
+        console.log(stderr);
 
-        console.log(
-          "Render Error:",
-          err.message
-        );
+        console.log("===== FFMPEG ERROR =====");
+        console.log(err);
 
         reject(err);
-
       })
 
       .save(outputPath);
-
   });
-
 };
